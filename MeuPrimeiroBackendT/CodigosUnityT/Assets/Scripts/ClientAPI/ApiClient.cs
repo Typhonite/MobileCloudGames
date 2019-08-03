@@ -1,16 +1,43 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Networking;
 
 public class ApiClient : MonoBehaviour
 {
-    const string url = "http://localhost:50287/API/Itens/";
+    const string url = "http://localhost:50287/API/Itens";
 
     // Use this for initialization
     void Start()
     {
         StartCoroutine(GetItensAPI());
+        StartCoroutine(PostItemAPI());
+    }
+
+    private IEnumerator PostItemAPI()
+    {
+        WWWForm form = new WWWForm();
+
+        form.AddField("nome", "ItemFromUnity");
+        form.AddField("descricao", "Item enviado pela unity (metodo POST)");
+        form.AddField("raridade", "50");
+        form.AddField("danoMaximo", "10");
+        form.AddField("tipoItemID", "1");
+
+        using (UnityWebRequest request = UnityWebRequest.Post(url + "/Create", form))
+        {
+            yield return request.SendWebRequest();
+
+            if(request.isNetworkError || request.isHttpError)
+            {
+                Debug.Log(request.error);
+            }
+            else
+            {
+                Debug.Log("Envio executado com sucesso");
+            }
+        }
     }
 
     IEnumerator GetItensAPI()
